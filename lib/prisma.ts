@@ -5,12 +5,24 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
 }
 
+function normalizeDatabaseUrl(url: string) {
+  const parsed = new URL(url)
+  const schema = parsed.searchParams.get('schema')
+
+  if (schema) {
+    parsed.searchParams.set('schema', schema.replace(/^['"]+|['"]+$/g, ''))
+  }
+
+  return parsed.toString()
+}
+
 function createPrismaClient() {
-  const connectionString = process.env.DATABASE_URL
-  if (!connectionString) {
+  const rawConnectionString = process.env.DATABASE_URL
+  if (!rawConnectionString) {
     throw new Error('DATABASE_URL environment variable is not set')
   }
 
+  const connectionString = normalizeDatabaseUrl(rawConnectionString)
   const adapter = new PrismaPg({ connectionString })
 
   return new PrismaClient({

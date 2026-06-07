@@ -9,10 +9,13 @@ if [ -z "${DATABASE_URL:-}" ]; then
   exit 1
 fi
 
+echo "🧱 Ensuring PostgreSQL schema..."
+node prisma/ensure-schema.js
+
 echo "🌱 Running Prisma database push..."
 # db push est utilisé ici car le projet ne versionne pas encore de migrations SQL.
 # On ne démarre pas l'application si le schéma n'a pas pu être créé.
-npx prisma db push --accept-data-loss --skip-generate
+npx prisma db push --accept-data-loss
 
 echo "🌾 Running Prisma seed..."
 # On ignore les erreurs du seed pour que le serveur démarre quoi qu'il arrive
