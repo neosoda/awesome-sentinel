@@ -26,8 +26,10 @@ function createPrismaClient() {
     throw new Error('DATABASE_URL environment variable is not set')
   }
 
-  const connectionString = normalizeDatabaseUrl(rawConnectionString)
-  const adapter = new PrismaPg({ connectionString })
+  const parsedConnectionString = new URL(normalizeDatabaseUrl(rawConnectionString))
+  const schema = parsedConnectionString.searchParams.get('schema') ?? undefined
+  const connectionString = parsedConnectionString.toString()
+  const adapter = new PrismaPg(connectionString, { schema })
 
   return new PrismaClient({
     adapter,

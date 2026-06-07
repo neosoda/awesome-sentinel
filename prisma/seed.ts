@@ -1,12 +1,31 @@
 import { PrismaClient, ToolType, ToolStatus } from '@prisma/client'
 import { PrismaPg } from '@prisma/adapter-pg'
 
+function sanitizeSchemaName(schema: string) {
+  return schema.replace(/\\/g, '').replace(/^['"]+|['"]+$/g, '').trim()
+}
+
+function normalizeDatabaseUrl(url: string) {
+  const parsed = new URL(url)
+  const schema = parsed.searchParams.get('schema')
+
+  if (schema) {
+    parsed.searchParams.set('schema', sanitizeSchemaName(schema))
+  }
+
+  return parsed
+}
+
 function createPrismaClient() {
-  const connectionString = process.env.DATABASE_URL
-  if (!connectionString) {
+  const rawConnectionString = process.env.DATABASE_URL
+  if (!rawConnectionString) {
     throw new Error('DATABASE_URL environment variable is not set')
   }
-  const adapter = new PrismaPg({ connectionString })
+
+  const parsedConnectionString = normalizeDatabaseUrl(rawConnectionString)
+  const schema = parsedConnectionString.searchParams.get('schema') ?? undefined
+  const connectionString = parsedConnectionString.toString()
+  const adapter = new PrismaPg(connectionString, { schema })
   return new PrismaClient({ adapter })
 }
 
