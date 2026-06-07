@@ -25,6 +25,9 @@ RUN npx prisma generate && npx tsc prisma/seed.ts --noEmit false --module common
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 
+# Prune devDependencies to keep node_modules minimal for production
+RUN npm prune --omit=dev
+
 # Production image
 FROM base AS runner
 WORKDIR /app
@@ -41,13 +44,9 @@ RUN adduser --system --uid 1001 nextjs
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/prisma.config.ts ./
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
-COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
-COPY --from=builder /app/node_modules/postgres ./node_modules/postgres
-COPY --from=builder /app/node_modules/mysql2 ./node_modules/mysql2
+COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+COPY --from=builder --chown=nextjs:nodejs /app/prisma.config.ts ./
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=nextjs:nodejs /app/start.sh ./
 
 USER nextjs
