@@ -1,11 +1,15 @@
 import { defineConfig } from 'prisma/config'
 
+function sanitizeSchemaName(schema: string) {
+  return schema.replace(/\\/g, '').replace(/^['"]+|['"]+$/g, '').trim()
+}
+
 function normalizeDatabaseUrl(url: string) {
   const parsed = new URL(url)
   const schema = parsed.searchParams.get('schema')
 
   if (schema) {
-    parsed.searchParams.set('schema', schema.replace(/^['"]+|['"]+$/g, ''))
+    parsed.searchParams.set('schema', sanitizeSchemaName(schema))
   }
 
   return parsed.toString()

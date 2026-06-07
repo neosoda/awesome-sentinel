@@ -1,11 +1,15 @@
 const { Client } = require('pg')
 
+function sanitizeSchemaName(schema) {
+  return schema.replace(/\\/g, '').replace(/^['"]+|['"]+$/g, '').trim()
+}
+
 function normalizeDatabaseUrl(url) {
   const parsed = new URL(url)
   const schema = parsed.searchParams.get('schema')
 
   if (schema) {
-    parsed.searchParams.set('schema', schema.replace(/^['"]+|['"]+$/g, ''))
+    parsed.searchParams.set('schema', sanitizeSchemaName(schema))
   }
 
   return parsed
