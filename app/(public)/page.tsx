@@ -47,7 +47,7 @@ export default async function HomePage() {
           <div className="flex items-center justify-between mb-8">
             <div>
               <h2 className="text-2xl font-bold text-slate-100">⭐ Recommandés</h2>
-              <p className="text-slate-500 text-sm mt-1">Les outils que j'utilise et recommande</p>
+              <p className="text-slate-500 text-sm mt-1">Les outils que j&apos;utilise et recommande</p>
             </div>
             <Link href="/tools?sort=recommended" className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors">
               Voir tout →

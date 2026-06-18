@@ -39,7 +39,7 @@ export function HeroSection({ toolCount }: { toolCount: number }) {
         </div>
 
         <p className="text-xl sm:text-2xl text-slate-400 max-w-3xl mx-auto mb-4 leading-relaxed">
-          Mon catalogue personnel d'outils, d'applications self-hosted,<br className="hidden sm:block" />
+          Mon catalogue personnel d&apos;outils, d&apos;applications self-hosted,<br className="hidden sm:block" />
           de SaaS et de projets open source.
         </p>
         <p className="text-sm text-slate-500 mb-10">

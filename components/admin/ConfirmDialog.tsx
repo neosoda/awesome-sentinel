@@ -19,12 +19,16 @@ export function ConfirmDialog({
 }: ConfirmDialogProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleConfirm = async () => {
     setIsLoading(true)
+    setError(null)
     try {
       await onConfirm()
       setIsOpen(false)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Une erreur est survenue.')
     } finally {
       setIsLoading(false)
     }
@@ -53,6 +57,11 @@ export function ConfirmDialog({
               <h3 className="text-lg font-semibold text-slate-100">{title}</h3>
             </div>
             <p className="text-slate-400 text-sm mb-6">{description}</p>
+            {error && (
+              <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200 mb-4">
+                {error}
+              </div>
+            )}
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setIsOpen(false)}

@@ -265,9 +265,9 @@ Avant de pousser une modification importante :
 ```bash
 npm run build
 npx prisma validate
+npm run lint
+npm run typecheck
 ```
-
-`npm run lint` peut encore remonter des erreurs historiques `react/no-unescaped-entities` dans certaines pages. Elles ne bloquent pas le build production actuel.
 
 ## Licence
 

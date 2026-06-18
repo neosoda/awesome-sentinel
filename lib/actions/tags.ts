@@ -3,7 +3,12 @@
 import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
 import { tagSchema } from '@/lib/validations/tag'
+import { isAdmin } from '@/lib/auth'
 import type { ActionResult } from './tools'
+
+function unauthorizedActionResult<T = never>(): ActionResult<T> {
+  return { success: false, error: 'Action non autorisée.' }
+}
 
 export async function getTags() {
   return prisma.tag.findMany({
@@ -20,6 +25,8 @@ export async function getTagBySlug(slug: string) {
 }
 
 export async function createTag(formData: unknown): Promise<ActionResult<{ id: string }>> {
+  if (!(await isAdmin())) return unauthorizedActionResult()
+
   const parsed = tagSchema.safeParse(formData)
   if (!parsed.success) {
     return { success: false, error: parsed.error.issues[0]?.message ?? 'Données invalides' }
@@ -37,6 +44,8 @@ export async function createTag(formData: unknown): Promise<ActionResult<{ id: s
 }
 
 export async function updateTag(id: string, formData: unknown): Promise<ActionResult<{ id: string }>> {
+  if (!(await isAdmin())) return unauthorizedActionResult()
+
   const parsed = tagSchema.safeParse(formData)
   if (!parsed.success) {
     return { success: false, error: parsed.error.issues[0]?.message ?? 'Données invalides' }
@@ -56,6 +65,7 @@ export async function updateTag(id: string, formData: unknown): Promise<ActionRe
 }
 
 export async function deleteTag(id: string): Promise<ActionResult> {
+  if (!(await isAdmin())) return unauthorizedActionResult()
   try {
     await prisma.tag.delete({ where: { id } })
     revalidatePath('/admin/tags')

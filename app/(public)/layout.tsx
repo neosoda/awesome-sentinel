@@ -21,7 +21,7 @@ export default async function PublicLayout({ children }: { children: React.React
               <span className="text-sm font-semibold gradient-text">Awesome Sentinel</span>
             </div>
             <p className="text-xs text-slate-600">
-              Catalogue personnel d'outils &amp; applications
+              Catalogue personnel d&apos;outils &amp; applications
             </p>
           </div>
         </div>

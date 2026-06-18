@@ -13,8 +13,8 @@ export default function ForbiddenPage() {
         <div className="text-8xl mb-6">🔒</div>
         <h1 className="text-4xl font-extrabold text-slate-100 mb-4">Accès refusé</h1>
         <p className="text-slate-400 mb-8 max-w-md mx-auto">
-          Vous n'avez pas les permissions nécessaires pour accéder à cette page.
-          L'administration est protégée par Authentik.
+          Vous n&apos;avez pas les permissions nécessaires pour accéder à cette page.
+          L&apos;administration est protégée par Authentik.
         </p>
         <Link
           href="/"

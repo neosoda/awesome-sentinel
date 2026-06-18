@@ -3,7 +3,12 @@
 import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
 import { categorySchema } from '@/lib/validations/category'
+import { isAdmin } from '@/lib/auth'
 import type { ActionResult } from './tools'
+
+function unauthorizedActionResult<T = never>(): ActionResult<T> {
+  return { success: false, error: 'Action non autorisée.' }
+}
 
 export async function getCategories() {
   return prisma.category.findMany({
@@ -20,6 +25,8 @@ export async function getCategoryBySlug(slug: string) {
 }
 
 export async function createCategory(formData: unknown): Promise<ActionResult<{ id: string }>> {
+  if (!(await isAdmin())) return unauthorizedActionResult()
+
   const parsed = categorySchema.safeParse(formData)
   if (!parsed.success) {
     return { success: false, error: parsed.error.issues[0]?.message ?? 'Données invalides' }
@@ -44,6 +51,8 @@ export async function createCategory(formData: unknown): Promise<ActionResult<{ 
 }
 
 export async function updateCategory(id: string, formData: unknown): Promise<ActionResult<{ id: string }>> {
+  if (!(await isAdmin())) return unauthorizedActionResult()
+
   const parsed = categorySchema.safeParse(formData)
   if (!parsed.success) {
     return { success: false, error: parsed.error.issues[0]?.message ?? 'Données invalides' }
@@ -71,6 +80,7 @@ export async function updateCategory(id: string, formData: unknown): Promise<Act
 }
 
 export async function deleteCategory(id: string): Promise<ActionResult> {
+  if (!(await isAdmin())) return unauthorizedActionResult()
   try {
     await prisma.category.delete({ where: { id } })
     revalidatePath('/categories')

@@ -1,9 +1,9 @@
 'use client'
 
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { categorySchema, type CategoryFormData } from '@/lib/validations/category'
 import { createCategory, updateCategory } from '@/lib/actions/categories'
 import { slugify } from '@/lib/utils'
@@ -11,17 +11,19 @@ import type { Category } from '@prisma/client'
 
 interface CategoryFormProps {
   category?: Category
-  onSuccess?: () => void
+  onSuccess?: (message: string) => void
+  onCancel?: () => void
 }
 
-export function CategoryForm({ category, onSuccess }: CategoryFormProps) {
+export function CategoryForm({ category, onSuccess, onCancel }: CategoryFormProps) {
   const router = useRouter()
   const isEdit = !!category
+  const [submitError, setSubmitError] = useState<string | null>(null)
 
   const {
+    control,
     register,
     handleSubmit,
-    watch,
     setValue,
     formState: { errors, isSubmitting },
   } = useForm<CategoryFormData>({
@@ -31,21 +33,22 @@ export function CategoryForm({ category, onSuccess }: CategoryFormProps) {
       : {},
   })
 
-  const name = watch('name')
+  const name = useWatch({ control, name: 'name' })
   useEffect(() => {
     if (!isEdit && name) setValue('slug', slugify(name))
   }, [name, isEdit, setValue])
 
   const onSubmit = async (data: CategoryFormData) => {
+    setSubmitError(null)
     const result = isEdit
       ? await updateCategory(category.id, data)
       : await createCategory(data)
 
     if (result.success) {
-      onSuccess?.()
+      onSuccess?.(isEdit ? 'Catégorie mise à jour avec succès.' : 'Catégorie créée avec succès.')
       router.refresh()
     } else {
-      alert(result.error)
+      setSubmitError(result.error)
     }
   }
 
@@ -75,8 +78,13 @@ export function CategoryForm({ category, onSuccess }: CategoryFormProps) {
           <input {...register('description')} placeholder="Description courte..." className={inputClass} />
         </div>
       </div>
+      {submitError && (
+        <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+          {submitError}
+        </div>
+      )}
       <div className="flex justify-end gap-3">
-        <button type="button" onClick={onSuccess} className="px-4 py-2 text-sm text-slate-400 hover:text-slate-200 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors">
+        <button type="button" onClick={onCancel} className="px-4 py-2 text-sm text-slate-400 hover:text-slate-200 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors">
           Annuler
         </button>
         <button type="submit" disabled={isSubmitting} className="px-4 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg transition-colors disabled:opacity-50">

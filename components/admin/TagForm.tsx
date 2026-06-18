@@ -1,9 +1,9 @@
 'use client'
 
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { tagSchema, type TagFormData } from '@/lib/validations/tag'
 import { createTag, updateTag } from '@/lib/actions/tags'
 import { slugify } from '@/lib/utils'
@@ -11,17 +11,19 @@ import type { Tag } from '@prisma/client'
 
 interface TagFormProps {
   tag?: Tag
-  onSuccess?: () => void
+  onSuccess?: (message: string) => void
+  onCancel?: () => void
 }
 
-export function TagForm({ tag, onSuccess }: TagFormProps) {
+export function TagForm({ tag, onSuccess, onCancel }: TagFormProps) {
   const router = useRouter()
   const isEdit = !!tag
+  const [submitError, setSubmitError] = useState<string | null>(null)
 
   const {
+    control,
     register,
     handleSubmit,
-    watch,
     setValue,
     formState: { errors, isSubmitting },
   } = useForm<TagFormData>({
@@ -29,21 +31,22 @@ export function TagForm({ tag, onSuccess }: TagFormProps) {
     defaultValues: tag ?? {},
   })
 
-  const name = watch('name')
+  const name = useWatch({ control, name: 'name' })
   useEffect(() => {
     if (!isEdit && name) setValue('slug', slugify(name))
   }, [name, isEdit, setValue])
 
   const onSubmit = async (data: TagFormData) => {
+    setSubmitError(null)
     const result = isEdit
       ? await updateTag(tag.id, data)
       : await createTag(data)
 
     if (result.success) {
-      onSuccess?.()
+      onSuccess?.(isEdit ? 'Tag mis à jour avec succès.' : 'Tag créé avec succès.')
       router.refresh()
     } else {
-      alert(result.error)
+      setSubmitError(result.error)
     }
   }
 
@@ -65,8 +68,13 @@ export function TagForm({ tag, onSuccess }: TagFormProps) {
           {errors.slug && <p className={errorClass}>{errors.slug.message}</p>}
         </div>
       </div>
+      {submitError && (
+        <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+          {submitError}
+        </div>
+      )}
       <div className="flex justify-end gap-3">
-        <button type="button" onClick={onSuccess} className="px-4 py-2 text-sm text-slate-400 hover:text-slate-200 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors">
+        <button type="button" onClick={onCancel} className="px-4 py-2 text-sm text-slate-400 hover:text-slate-200 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors">
           Annuler
         </button>
         <button type="submit" disabled={isSubmitting} className="px-4 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg transition-colors disabled:opacity-50">

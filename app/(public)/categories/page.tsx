@@ -27,7 +27,7 @@ export default async function CategoriesPage() {
       ) : (
         <div className="text-center py-24">
           <div className="text-5xl mb-4">📂</div>
-          <p className="text-slate-500">Aucune catégorie pour l'instant.</p>
+          <p className="text-slate-500">Aucune catégorie pour l&apos;instant.</p>
         </div>
       )}
     </div>

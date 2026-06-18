@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { CategoryForm } from '@/components/admin/CategoryForm'
 import { ConfirmDialog } from '@/components/admin/ConfirmDialog'
@@ -15,6 +15,19 @@ export function AdminCategoriesClient({ categories }: AdminCategoriesClientProps
   const router = useRouter()
   const [showForm, setShowForm] = useState(false)
   const [editingCategory, setEditingCategory] = useState<Category | null>(null)
+  const [query, setQuery] = useState('')
+  const [actionError, setActionError] = useState<string | null>(null)
+  const [notice, setNotice] = useState<string | null>(null)
+
+  const filteredCategories = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase()
+    if (!normalizedQuery) return categories
+
+    return categories.filter((category) =>
+      [category.name, category.slug, category.description ?? '']
+        .some((value) => value.toLowerCase().includes(normalizedQuery))
+    )
+  }, [categories, query])
 
   return (
     <div>
@@ -42,14 +55,48 @@ export function AdminCategoriesClient({ categories }: AdminCategoriesClientProps
           </h2>
           <CategoryForm
             category={editingCategory ?? undefined}
-            onSuccess={() => { setShowForm(false); setEditingCategory(null) }}
+            onSuccess={(message) => {
+              setActionError(null)
+              setNotice(message)
+              setShowForm(false)
+              setEditingCategory(null)
+            }}
+            onCancel={() => {
+              setShowForm(false)
+              setEditingCategory(null)
+            }}
           />
+        </div>
+      )}
+
+      <div className="glass-card rounded-xl p-4 mb-6">
+        <label htmlFor="category-search" className="block text-xs text-slate-500 uppercase tracking-wider mb-2">
+          Rechercher
+        </label>
+        <input
+          id="category-search"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Nom, slug, description"
+          className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+        />
+      </div>
+
+      {actionError && (
+        <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200 mb-6">
+          {actionError}
+        </div>
+      )}
+
+      {notice && (
+        <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200 mb-6">
+          {notice}
         </div>
       )}
 
       {/* List */}
       <div className="glass-card rounded-xl overflow-hidden">
-        {categories.length > 0 ? (
+        {filteredCategories.length > 0 ? (
           <table className="w-full">
             <thead>
               <tr className="border-b border-slate-700/50">
@@ -60,7 +107,7 @@ export function AdminCategoriesClient({ categories }: AdminCategoriesClientProps
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-700/30">
-              {categories.map((cat) => (
+              {filteredCategories.map((cat) => (
                 <tr key={cat.id} className="hover:bg-slate-800/40 transition-colors">
                   <td className="px-5 py-3">
                     <span className="text-sm text-slate-200">{cat.icon} {cat.name}</span>
@@ -87,8 +134,15 @@ export function AdminCategoriesClient({ categories }: AdminCategoriesClientProps
                         title="Supprimer la catégorie"
                         description={`Supprimer "${cat.name}" ? Les outils liés perdront leur catégorie.`}
                         onConfirm={async () => {
-                          await deleteCategory(cat.id)
-                          router.refresh()
+                          setActionError(null)
+                          setNotice(null)
+                          const result = await deleteCategory(cat.id)
+                          if (result.success) {
+                            setNotice('Catégorie supprimée avec succès.')
+                            router.refresh()
+                            return
+                          }
+                          setActionError(result.error)
                         }}
                         trigger={
                           <button className="p-1.5 text-slate-600 hover:text-red-400 transition-colors">
@@ -108,7 +162,7 @@ export function AdminCategoriesClient({ categories }: AdminCategoriesClientProps
         ) : (
           <div className="text-center py-12 text-slate-500">
             <div className="text-3xl mb-3">📂</div>
-            <p>Aucune catégorie</p>
+            <p>{query ? 'Aucune catégorie ne correspond à cette recherche.' : 'Aucune catégorie'}</p>
           </div>
         )}
       </div>

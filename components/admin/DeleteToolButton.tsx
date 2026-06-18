@@ -18,7 +18,10 @@ export function DeleteToolButton({ toolId, toolTitle }: DeleteToolButtonProps) {
       description={`Êtes-vous sûr de vouloir supprimer "${toolTitle}" ? Cette action est irréversible.`}
       confirmLabel="Supprimer"
       onConfirm={async () => {
-        await deleteTool(toolId)
+        const result = await deleteTool(toolId)
+        if (!result.success) {
+          throw new Error(result.error)
+        }
         router.refresh()
       }}
       trigger={

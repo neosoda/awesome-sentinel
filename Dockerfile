@@ -1,5 +1,5 @@
 FROM node:20-alpine AS base
-LABEL maintainer="StackVault"
+LABEL maintainer="Awesome Sentinel"
 
 # Install dependencies only when needed
 FROM base AS deps

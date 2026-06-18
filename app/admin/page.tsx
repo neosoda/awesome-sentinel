@@ -33,7 +33,7 @@ export default async function AdminDashboardPage() {
     <div className="max-w-5xl">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-slate-100">Dashboard</h1>
-        <p className="text-slate-500 text-sm mt-1">Vue d'ensemble de votre catalogue</p>
+        <p className="text-slate-500 text-sm mt-1">Vue d&apos;ensemble de votre catalogue</p>
       </div>
 
       {/* Stats cards */}

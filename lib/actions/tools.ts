@@ -4,14 +4,20 @@ import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
 import { toolSchema } from '@/lib/validations/tool'
 import { slugify } from '@/lib/utils'
+import { isAdmin } from '@/lib/auth'
 
 export type ActionResult<T = null> =
   | { success: true; data: T }
   | { success: false; error: string }
 
+function unauthorizedActionResult<T = never>(): ActionResult<T> {
+  return { success: false, error: 'Action non autorisée.' }
+}
+
 export async function getTools(params?: {
   search?: string
   categoryId?: string
+  categorySlug?: string
   tagSlug?: string
   type?: string
   status?: string
@@ -29,7 +35,12 @@ export async function getTools(params?: {
       { longDescription: { contains: params.search, mode: 'insensitive' } },
     ]
   }
-  if (params?.categoryId) where.categoryId = params.categoryId
+  // Resolve category by slug (public filter) or id (admin), preferring an id.
+  if (params?.categoryId) {
+    where.categoryId = params.categoryId
+  } else if (params?.categorySlug) {
+    where.category = { slug: params.categorySlug }
+  }
   if (params?.type) where.type = params.type
   if (params?.status) where.status = params.status
   if (params?.isSelfHosted !== undefined) where.isSelfHosted = params.isSelfHosted
@@ -75,6 +86,8 @@ export async function getToolById(id: string) {
 }
 
 export async function createTool(formData: unknown): Promise<ActionResult<{ id: string; slug: string }>> {
+  if (!(await isAdmin())) return unauthorizedActionResult()
+
   const parsed = toolSchema.safeParse(formData)
   if (!parsed.success) {
     return { success: false, error: parsed.error.issues[0]?.message ?? 'Données invalides' }
@@ -114,6 +127,8 @@ export async function createTool(formData: unknown): Promise<ActionResult<{ id: 
 }
 
 export async function updateTool(id: string, formData: unknown): Promise<ActionResult<{ slug: string }>> {
+  if (!(await isAdmin())) return unauthorizedActionResult()
+
   const parsed = toolSchema.safeParse(formData)
   if (!parsed.success) {
     return { success: false, error: parsed.error.issues[0]?.message ?? 'Données invalides' }
@@ -158,6 +173,7 @@ export async function updateTool(id: string, formData: unknown): Promise<ActionR
 }
 
 export async function deleteTool(id: string): Promise<ActionResult> {
+  if (!(await isAdmin())) return unauthorizedActionResult()
   try {
     await prisma.tool.delete({ where: { id } })
     revalidatePath('/tools')

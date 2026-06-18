@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect } from 'react'
-import { useForm, type SubmitHandler } from 'react-hook-form'
+import { useEffect, useState } from 'react'
+import { useForm, useWatch, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
 import { toolSchema, type ToolFormData } from '@/lib/validations/tool'
@@ -18,17 +18,16 @@ interface ToolFormProps {
 export function ToolForm({ categories, tags, tool }: ToolFormProps) {
   const router = useRouter()
   const isEdit = !!tool
+  const [submitError, setSubmitError] = useState<string | null>(null)
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const {
+    control,
     register,
     handleSubmit,
     setValue,
-    watch,
     formState: { errors, isSubmitting },
   } = useForm<ToolFormData>({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    resolver: zodResolver(toolSchema) as any,
+    resolver: zodResolver(toolSchema) as Resolver<ToolFormData>,
     defaultValues: tool
       ? {
           ...tool,
@@ -57,8 +56,8 @@ export function ToolForm({ categories, tags, tool }: ToolFormProps) {
         },
   })
 
-  const title = watch('title')
-  const selectedTagIds = watch('tagIds') ?? []
+  const title = useWatch({ control, name: 'title' })
+  const selectedTagIds = useWatch({ control, name: 'tagIds' }) ?? []
 
   // Auto-generate slug from title (create mode only)
   useEffect(() => {
@@ -77,15 +76,16 @@ export function ToolForm({ categories, tags, tool }: ToolFormProps) {
   }
 
   const onSubmit = async (data: ToolFormData) => {
+    setSubmitError(null)
     const result = isEdit
       ? await updateTool(tool.id, data)
       : await createTool(data)
 
     if (result.success) {
-      router.push('/admin/tools')
+      router.push(`/admin/tools?notice=${isEdit ? 'updated' : 'created'}`)
       router.refresh()
     } else {
-      alert(result.error)
+      setSubmitError(result.error)
     }
   }
 
@@ -238,27 +238,34 @@ export function ToolForm({ categories, tags, tool }: ToolFormProps) {
       </div>
 
       {/* Actions */}
-      <div className="flex items-center justify-between">
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="px-4 py-2 text-sm text-slate-400 hover:text-slate-200 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors"
-        >
-          Annuler
-        </button>
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="flex items-center gap-2 px-6 py-2.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isSubmitting && (
-            <svg className="w-3.5 h-3.5 animate-spin" viewBox="0 0 24 24" fill="none">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-            </svg>
-          )}
-          {isEdit ? 'Enregistrer les modifications' : 'Créer l\'outil'}
-        </button>
+      <div className="space-y-3">
+        {submitError && (
+          <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+            {submitError}
+          </div>
+        )}
+        <div className="flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="px-4 py-2 text-sm text-slate-400 hover:text-slate-200 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors"
+          >
+            Annuler
+          </button>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="flex items-center gap-2 px-6 py-2.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isSubmitting && (
+              <svg className="w-3.5 h-3.5 animate-spin" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+              </svg>
+            )}
+            {isEdit ? 'Enregistrer les modifications' : 'Créer l\'outil'}
+          </button>
+        </div>
       </div>
     </form>
   )
