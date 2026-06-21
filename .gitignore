@@ -42,3 +42,7 @@ next-env.d.ts
 
 # prisma generated files
 /prisma/seed.js
+/prisma/import-favorites.js
+
+# local bookmark import workspace
+/_A IMPORTER/
