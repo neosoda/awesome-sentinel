@@ -1,5 +1,6 @@
 import { PrismaClient, ToolType, ToolStatus } from '@prisma/client'
 import { PrismaPg } from '@prisma/adapter-pg'
+import { importFavorites } from './import-favorites'
 
 function sanitizeSchemaName(schema: string) {
   return schema.replace(/\\/g, '').replace(/^['"]+|['"]+$/g, '').trim()
@@ -474,10 +475,18 @@ Avantages :
     console.log(`  ✓ ${data.title}`)
   }
 
+  const favoritesImport = await importFavorites(prisma)
+
   console.log('\n✅ Seed terminé !')
   console.log(`   ${toolsData.length} outils créés`)
   console.log(`   ${categories.length} catégories créées`)
   console.log(`   ${tags.length} tags créés`)
+  console.log(
+    `   ${favoritesImport.createdCount} favoris importés, ${favoritesImport.matchedCount} outils existants associés`,
+  )
+  console.log(
+    `   ${favoritesImport.sourceCount} entrées source, ${favoritesImport.duplicateCount} doublon(s), ${favoritesImport.categoryCount} catégories d'import`,
+  )
 }
 
 main()
