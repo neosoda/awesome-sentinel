@@ -7,29 +7,38 @@ interface CategoryCardProps {
 
 export function CategoryCard({ category }: CategoryCardProps) {
   return (
-    <Link href={`/categories/${category.slug}`} className="group block">
-      <div className="glass-card rounded-xl p-6 h-full transition-all duration-300 hover:translate-y-[-2px] hover:bg-slate-800/60 tool-card-glow">
-        <div className="flex items-center gap-4 mb-3">
+    <Link href={`/categories/${category.slug}`} className="md-focus group block h-full rounded-[24px]">
+      <article className="md-card md-interactive-card h-full p-5">
+        <div className="mb-4 flex items-center gap-4">
           {category.icon ? (
-            <span className="text-3xl">{category.icon}</span>
+            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--md-secondary-container)] text-2xl">
+              {category.icon}
+            </span>
           ) : (
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-indigo-500/20 flex items-center justify-center">
-              <svg className="w-5 h-5 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--md-secondary-container)]">
+              <svg className="h-6 w-6 text-[var(--md-primary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
               </svg>
             </div>
           )}
-          <div>
-            <h3 className="font-semibold text-slate-100 group-hover:text-indigo-300 transition-colors">
+          <div className="min-w-0 flex-1">
+            <h3 className="font-bold text-[var(--md-on-background)] transition-colors group-hover:text-[var(--md-primary)]">
               {category.name}
             </h3>
-            <span className="text-xs text-slate-500">{category._count.tools} outil{category._count.tools !== 1 ? 's' : ''}</span>
+            <span className="text-xs text-[var(--md-on-surface-variant)]">
+              {category._count.tools} outil{category._count.tools !== 1 ? 's' : ''}
+            </span>
           </div>
+          <span className="rounded-full bg-[var(--md-secondary-container)] px-2.5 py-1 text-xs font-bold text-[var(--md-primary)]">
+            {category._count.tools}
+          </span>
         </div>
         {category.description && (
-          <p className="text-sm text-slate-400 line-clamp-2">{category.description}</p>
+          <p className="line-clamp-2 text-sm leading-6 text-[var(--md-on-surface-variant)]">
+            {category.description}
+          </p>
         )}
-      </div>
+      </article>
     </Link>
   )
 }

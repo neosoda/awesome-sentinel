@@ -18,6 +18,8 @@ const SORT_OPTIONS = [
   { value: 'recommended', label: 'Recommandé' },
 ]
 
+const fieldLabelClass = 'mb-2 block text-xs font-bold uppercase tracking-wider text-[var(--md-on-surface-variant)]'
+
 export function FilterPanel({ categories }: FilterPanelProps) {
   const router = useRouter()
   const pathname = usePathname()
@@ -39,8 +41,8 @@ export function FilterPanel({ categories }: FilterPanelProps) {
 
   const toggleBool = useCallback(
     (key: string) => {
-      const current = searchParams.get(key)
-      setParam(key, current === 'true' ? null : 'true')
+      const currentValue = searchParams.get(key)
+      setParam(key, currentValue === 'true' ? null : 'true')
     },
     [searchParams, setParam]
   )
@@ -58,27 +60,26 @@ export function FilterPanel({ categories }: FilterPanelProps) {
   const hasFilters = current.category || current.type || current.status || current.selfHosted || current.docker || current.openSource
 
   return (
-    <aside className="w-full lg:w-64 flex-shrink-0">
-      <div className="glass-card rounded-xl p-4 sticky top-4">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-slate-200 text-sm">Filtres</h2>
+    <aside className="w-full flex-shrink-0 lg:w-72">
+      <div className="md-card sticky top-24 p-5">
+        <div className="mb-5 flex items-center justify-between">
+          <h2 className="text-base font-bold text-[var(--md-on-background)]">Filtres</h2>
           {hasFilters && (
             <button
               onClick={() => router.push(pathname)}
-              className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors"
+              className="md-focus rounded-full px-2 py-1 text-xs font-medium text-[var(--md-primary)] transition-colors hover:bg-[rgba(103,80,164,0.1)]"
             >
               Réinitialiser
             </button>
           )}
         </div>
 
-        {/* Sort */}
-        <div className="mb-5">
-          <label className="block text-xs text-slate-500 uppercase tracking-wider mb-2">Trier par</label>
+        <div className="mb-6">
+          <label className={fieldLabelClass}>Trier par</label>
           <select
             value={current.sort}
-            onChange={(e) => setParam('sort', e.target.value)}
-            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+            onChange={(event) => setParam('sort', event.target.value)}
+            className="md-filled-field px-3 text-sm"
           >
             {SORT_OPTIONS.map(({ value, label }) => (
               <option key={value} value={value}>{label}</option>
@@ -86,38 +87,34 @@ export function FilterPanel({ categories }: FilterPanelProps) {
           </select>
         </div>
 
-        {/* Categories */}
         {categories.length > 0 && (
-          <div className="mb-5">
-            <label className="block text-xs text-slate-500 uppercase tracking-wider mb-2">Catégorie</label>
-            <div className="space-y-1">
-              <button
+          <div className="mb-6">
+            <label className={fieldLabelClass}>Catégorie</label>
+            <div className="space-y-1.5">
+              <CategoryButton
+                active={!current.category}
+                label="Toutes"
                 onClick={() => setParam('category', null)}
-                className={`w-full text-left text-sm px-3 py-1.5 rounded-lg transition-colors ${!current.category ? 'bg-indigo-600/30 text-indigo-300' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/50'}`}
-              >
-                Toutes
-              </button>
-              {categories.map((cat) => (
-                <button
-                  key={cat.id}
-                  onClick={() => setParam('category', current.category === cat.slug ? null : cat.slug)}
-                  className={`w-full text-left text-sm px-3 py-1.5 rounded-lg transition-colors flex justify-between items-center ${current.category === cat.slug ? 'bg-indigo-600/30 text-indigo-300' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/50'}`}
-                >
-                  <span>{cat.icon && <span className="mr-1">{cat.icon}</span>}{cat.name}</span>
-                  <span className="text-xs text-slate-600">{cat._count.tools}</span>
-                </button>
+              />
+              {categories.map((category) => (
+                <CategoryButton
+                  key={category.id}
+                  active={current.category === category.slug}
+                  label={`${category.icon ? `${category.icon} ` : ''}${category.name}`}
+                  count={category._count.tools}
+                  onClick={() => setParam('category', current.category === category.slug ? null : category.slug)}
+                />
               ))}
             </div>
           </div>
         )}
 
-        {/* Type */}
-        <div className="mb-5">
-          <label className="block text-xs text-slate-500 uppercase tracking-wider mb-2">Type</label>
+        <div className="mb-6">
+          <label className={fieldLabelClass}>Type</label>
           <select
             value={current.type}
-            onChange={(e) => setParam('type', e.target.value || null)}
-            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+            onChange={(event) => setParam('type', event.target.value || null)}
+            className="md-filled-field px-3 text-sm"
           >
             <option value="">Tous les types</option>
             {TYPES.map(([value, label]) => (
@@ -126,13 +123,12 @@ export function FilterPanel({ categories }: FilterPanelProps) {
           </select>
         </div>
 
-        {/* Status */}
-        <div className="mb-5">
-          <label className="block text-xs text-slate-500 uppercase tracking-wider mb-2">Statut</label>
+        <div className="mb-6">
+          <label className={fieldLabelClass}>Statut</label>
           <select
             value={current.status}
-            onChange={(e) => setParam('status', e.target.value || null)}
-            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+            onChange={(event) => setParam('status', event.target.value || null)}
+            className="md-filled-field px-3 text-sm"
           >
             <option value="">Tous les statuts</option>
             {STATUSES.map(([value, label]) => (
@@ -141,27 +137,60 @@ export function FilterPanel({ categories }: FilterPanelProps) {
           </select>
         </div>
 
-        {/* Boolean toggles */}
         <div className="space-y-2">
-          <label className="block text-xs text-slate-500 uppercase tracking-wider mb-2">Options</label>
+          <label className={fieldLabelClass}>Options</label>
           {[
-            { key: 'selfHosted', label: '🖥️ Self-Hosted', active: current.selfHosted },
-            { key: 'docker', label: '🐳 Docker disponible', active: current.docker },
-            { key: 'openSource', label: '💻 Open Source', active: current.openSource },
+            { key: 'selfHosted', label: 'Self-Hosted', active: current.selfHosted },
+            { key: 'docker', label: 'Docker disponible', active: current.docker },
+            { key: 'openSource', label: 'Open Source', active: current.openSource },
           ].map(({ key, label, active }) => (
             <button
               key={key}
               onClick={() => toggleBool(key)}
-              className={`w-full text-left text-sm px-3 py-2 rounded-lg transition-all flex items-center gap-2 ${active ? 'bg-indigo-600/30 text-indigo-300 border border-indigo-500/30' : 'text-slate-400 hover:text-slate-200 bg-slate-800/40 border border-transparent'}`}
+              className={`md-focus flex min-h-11 w-full items-center gap-2 rounded-full border px-3 py-2 text-left text-sm font-medium transition-all active:scale-95 ${
+                active
+                  ? 'border-transparent bg-[var(--md-secondary-container)] text-[var(--md-on-secondary-container)]'
+                  : 'border-transparent bg-[var(--md-surface-container-high)] text-[var(--md-on-surface-variant)] hover:bg-[rgba(103,80,164,0.1)]'
+              }`}
             >
-              <div className={`w-4 h-4 rounded flex items-center justify-center flex-shrink-0 ${active ? 'bg-indigo-500' : 'bg-slate-700'}`}>
-                {active && <svg className="w-2.5 h-2.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>}
-              </div>
+              <span className={`flex h-4 w-4 flex-shrink-0 items-center justify-center rounded ${active ? 'bg-[var(--md-primary)]' : 'bg-[var(--md-outline-variant)]'}`}>
+                {active && (
+                  <svg className="h-2.5 w-2.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                )}
+              </span>
               {label}
             </button>
           ))}
         </div>
       </div>
     </aside>
+  )
+}
+
+function CategoryButton({
+  active,
+  label,
+  count,
+  onClick,
+}: {
+  active: boolean
+  label: string
+  count?: number
+  onClick: () => void
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`md-focus flex w-full items-center justify-between rounded-full px-3 py-2 text-left text-sm font-medium transition-colors ${
+        active
+          ? 'bg-[var(--md-secondary-container)] text-[var(--md-on-secondary-container)]'
+          : 'text-[var(--md-on-surface-variant)] hover:bg-[rgba(103,80,164,0.08)] hover:text-[var(--md-primary)]'
+      }`}
+    >
+      <span>{label}</span>
+      {count !== undefined && <span className="text-xs opacity-70">{count}</span>}
+    </button>
   )
 }

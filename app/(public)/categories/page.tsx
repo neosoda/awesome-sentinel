@@ -1,4 +1,5 @@
 import { CategoryCard } from '@/components/public/CategoryCard'
+import { PageHeader } from '@/components/public/PageHeader'
 import { getCategories } from '@/lib/actions/categories'
 import type { Metadata } from 'next'
 
@@ -13,21 +14,22 @@ export default async function CategoriesPage() {
   const categories = await getCategories()
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <div className="mb-10">
-        <h1 className="text-3xl font-bold text-slate-100 mb-2">Catégories</h1>
-        <p className="text-slate-500">{categories.length} catégorie{categories.length !== 1 ? 's' : ''}</p>
-      </div>
+    <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+      <PageHeader
+        title="Catégories"
+        description="Explorez le catalogue par domaine et trouvez rapidement les outils adaptés à votre besoin."
+        meta={`${categories.length} catégorie${categories.length !== 1 ? 's' : ''}`}
+      />
       {categories.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {categories.map((category) => (
             <CategoryCard key={category.id} category={category} />
           ))}
         </div>
       ) : (
-        <div className="text-center py-24">
-          <div className="text-5xl mb-4">📂</div>
-          <p className="text-slate-500">Aucune catégorie pour l&apos;instant.</p>
+        <div className="md-card py-20 text-center">
+          <div className="mb-4 text-5xl">📂</div>
+          <p className="text-[var(--md-on-surface-variant)]">Aucune catégorie pour l&apos;instant.</p>
         </div>
       )}
     </div>

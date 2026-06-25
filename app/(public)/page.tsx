@@ -41,19 +41,14 @@ export default async function HomePage() {
     <>
       <HeroSection toolCount={toolCount} />
 
-      {/* Recommended */}
       {recommendedTools.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h2 className="text-2xl font-bold text-slate-100">⭐ Recommandés</h2>
-              <p className="text-slate-500 text-sm mt-1">Les outils que j&apos;utilise et recommande</p>
-            </div>
-            <Link href="/tools?sort=recommended" className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors">
-              Voir tout →
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+          <SectionHeader
+            title="Recommandés"
+            description="Les outils que j’utilise et recommande"
+            href="/tools?sort=recommended"
+          />
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {recommendedTools.map((tool) => (
               <ToolCard key={tool.id} tool={tool} />
             ))}
@@ -61,43 +56,61 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* Categories */}
       {categories.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 border-t border-slate-800/40">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h2 className="text-2xl font-bold text-slate-100">📂 Catégories</h2>
-              <p className="text-slate-500 text-sm mt-1">Explorez par domaine</p>
+        <section className="relative overflow-hidden bg-[var(--md-surface-container-low)] py-16">
+          <div aria-hidden="true" className="absolute -right-24 top-4 h-64 w-64 rounded-full bg-[#D0BCFF]/30 blur-3xl" />
+          <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <SectionHeader
+              title="Catégories"
+              description="Explorez par domaine"
+              href="/categories"
+              linkLabel="Toutes les catégories"
+            />
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {categories.map((category) => (
+                <CategoryCard key={category.id} category={category} />
+              ))}
             </div>
-            <Link href="/categories" className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors">
-              Toutes les catégories →
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {categories.map((category) => (
-              <CategoryCard key={category.id} category={category} />
-            ))}
           </div>
         </section>
       )}
 
-      {/* Recent additions */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 border-t border-slate-800/40">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h2 className="text-2xl font-bold text-slate-100">🆕 Ajouts récents</h2>
-            <p className="text-slate-500 text-sm mt-1">Les derniers outils référencés</p>
-          </div>
-          <Link href="/tools" className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors">
-            Tout voir →
-          </Link>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <SectionHeader
+          title="Ajouts récents"
+          description="Les derniers outils référencés"
+          href="/tools"
+        />
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {recentTools.map((tool) => (
             <ToolCard key={tool.id} tool={tool} />
           ))}
         </div>
       </section>
     </>
+  )
+}
+
+function SectionHeader({
+  title,
+  description,
+  href,
+  linkLabel = 'Voir tout',
+}: {
+  title: string
+  description: string
+  href: string
+  linkLabel?: string
+}) {
+  return (
+    <div className="mb-8 flex items-end justify-between gap-6">
+      <div>
+        <h2 className="text-3xl font-bold tracking-[-0.02em] text-[var(--md-on-background)]">{title}</h2>
+        <p className="mt-1 text-sm text-[var(--md-on-surface-variant)]">{description}</p>
+      </div>
+      <Link href={href} className="md-button md-button-outlined md-focus hidden sm:inline-flex">
+        {linkLabel}
+      </Link>
+    </div>
   )
 }
