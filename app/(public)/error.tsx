@@ -15,23 +15,23 @@ export default function PublicError({
   }, [error])
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-      <div className="glass-card rounded-2xl p-8 text-center">
-        <div className="text-5xl mb-4">⚠️</div>
-        <h1 className="text-2xl font-bold text-slate-100 mb-3">Chargement impossible</h1>
-        <p className="text-slate-400 mb-8">
+    <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
+      <div className="md-card p-8 text-center sm:p-12">
+        <div className="mb-4 text-5xl">⚠️</div>
+        <h1 className="mb-3 text-3xl font-bold text-[var(--md-on-background)]">Chargement impossible</h1>
+        <p className="mb-8 text-[var(--md-on-surface-variant)]">
           Une erreur inattendue a empêché l&apos;affichage de cette page publique.
         </p>
-        <div className="flex flex-col sm:flex-row justify-center gap-3">
+        <div className="flex flex-col justify-center gap-3 sm:flex-row">
           <button
             onClick={() => unstable_retry()}
-            className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-xl transition-colors"
+            className="md-button md-button-primary md-focus"
           >
             Réessayer
           </button>
           <Link
             href="/tools"
-            className="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-semibold rounded-xl transition-colors"
+            className="md-button md-button-tonal md-focus"
           >
             Retour au catalogue
           </Link>

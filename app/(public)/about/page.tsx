@@ -5,70 +5,89 @@ export const metadata: Metadata = {
   description: 'Awesome Sentinel, un catalogue personnel d’outils et d’applications.',
 }
 
+const contentItems = [
+  { emoji: '🖥️', label: 'Applications self-hosted' },
+  { emoji: '☁️', label: 'SaaS & outils en ligne' },
+  { emoji: '💻', label: 'Outils CLI & dev' },
+  { emoji: '🔒', label: 'Sécurité & réseau' },
+  { emoji: '🤖', label: 'Outils IA & automatisation' },
+  { emoji: '📊', label: 'Monitoring & observabilité' },
+]
+
+const stackItems = [
+  { label: 'Next.js 16', desc: 'App Router' },
+  { label: 'TypeScript', desc: 'Strict mode' },
+  { label: 'Prisma', desc: 'ORM' },
+  { label: 'PostgreSQL', desc: 'Base de données' },
+  { label: 'Tailwind CSS', desc: 'Styles' },
+  { label: 'Composants React', desc: 'UI sur mesure' },
+]
+
 export default function AboutPage() {
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-      <div className="text-center mb-16">
-        <h1 className="text-4xl font-extrabold gradient-text mb-4">Awesome Sentinel</h1>
-        <p className="text-xl text-slate-400">Mon catalogue personnel d&apos;outils &amp; applications</p>
-      </div>
+    <div className="mx-auto max-w-5xl px-4 py-14 sm:px-6 lg:px-8">
+      <header className="relative mb-12 overflow-hidden rounded-[40px] bg-[var(--md-secondary-container)] px-6 py-14 text-center sm:px-12">
+        <div aria-hidden="true" className="absolute -left-20 -top-20 h-64 w-64 rounded-full bg-[#D0BCFF]/60 blur-3xl" />
+        <div aria-hidden="true" className="absolute -bottom-24 -right-16 h-64 w-64 rounded-full bg-[#EFB8C8]/45 blur-3xl" />
+        <div className="relative">
+          <h1 className="text-5xl font-bold tracking-[-0.03em] text-[var(--md-on-secondary-container)] sm:text-6xl">
+            Awesome Sentinel
+          </h1>
+          <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-[var(--md-on-secondary-container)]/80">
+            Mon catalogue personnel d&apos;outils &amp; applications
+          </p>
+        </div>
+      </header>
 
-      <div className="space-y-8 text-slate-400 leading-relaxed">
-        <div className="glass-card rounded-xl p-8">
-          <h2 className="text-xl font-bold text-slate-100 mb-4">🎯 Objectif</h2>
+      <div className="grid gap-6 md:grid-cols-2">
+        <InfoCard title="Objectif">
           <p>
             Awesome Sentinel est un catalogue personnel regroupant tous les outils, applications self-hosted,
             SaaS, projets open source et bibliothèques que j&apos;utilise, teste ou surveille.
             L&apos;idée est d&apos;avoir un point d&apos;entrée unique, bien organisé et consultable rapidement.
           </p>
-        </div>
+        </InfoCard>
 
-        <div className="glass-card rounded-xl p-8">
-          <h2 className="text-xl font-bold text-slate-100 mb-4">📦 Contenu</h2>
-          <ul className="space-y-2">
-            {[
-              { emoji: '🖥️', label: 'Applications self-hosted' },
-              { emoji: '☁️', label: 'SaaS & outils en ligne' },
-              { emoji: '💻', label: 'Outils CLI & dev' },
-              { emoji: '🔒', label: 'Sécurité & réseau' },
-              { emoji: '🤖', label: 'Outils IA & automatisation' },
-              { emoji: '📊', label: 'Monitoring & observabilité' },
-            ].map(({ emoji, label }) => (
+        <InfoCard title="Contenu">
+          <ul className="space-y-3">
+            {contentItems.map(({ emoji, label }) => (
               <li key={label} className="flex items-center gap-3">
-                <span>{emoji}</span>
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--md-secondary-container)]" aria-hidden="true">
+                  {emoji}
+                </span>
                 <span>{label}</span>
               </li>
             ))}
           </ul>
-        </div>
+        </InfoCard>
 
-        <div className="glass-card rounded-xl p-8">
-          <h2 className="text-xl font-bold text-slate-100 mb-4">⚡ Stack technique</h2>
-          <div className="grid grid-cols-2 gap-3">
-            {[
-              { label: 'Next.js 16', desc: 'App Router' },
-              { label: 'TypeScript', desc: 'Strict mode' },
-              { label: 'Prisma', desc: 'ORM' },
-              { label: 'PostgreSQL', desc: 'Base de données' },
-              { label: 'Tailwind CSS', desc: 'Styles' },
-              { label: 'Composants React', desc: 'UI sur mesure' },
-            ].map(({ label, desc }) => (
-              <div key={label} className="bg-slate-800/60 rounded-lg p-3">
-                <div className="text-sm font-semibold text-slate-200">{label}</div>
-                <div className="text-xs text-slate-500">{desc}</div>
+        <InfoCard title="Stack technique">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {stackItems.map(({ label, desc }) => (
+              <div key={label} className="rounded-2xl bg-[var(--md-surface-container-high)] p-4">
+                <div className="text-sm font-bold text-[var(--md-on-background)]">{label}</div>
+                <div className="mt-1 text-xs text-[var(--md-on-surface-variant)]">{desc}</div>
               </div>
             ))}
           </div>
-        </div>
+        </InfoCard>
 
-        <div className="glass-card rounded-xl p-8">
-          <h2 className="text-xl font-bold text-slate-100 mb-4">🔒 Confidentialité</h2>
+        <InfoCard title="Confidentialité">
           <p>
             Ce catalogue est public en lecture. L&apos;administration est accessible uniquement
             via Authentik (reverse proxy). Aucun compte utilisateur n&apos;est créé sur ce site.
           </p>
-        </div>
+        </InfoCard>
       </div>
     </div>
+  )
+}
+
+function InfoCard({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className="md-card p-6 sm:p-8">
+      <h2 className="mb-4 text-2xl font-bold text-[var(--md-on-background)]">{title}</h2>
+      <div className="text-sm leading-7 text-[var(--md-on-surface-variant)]">{children}</div>
+    </section>
   )
 }

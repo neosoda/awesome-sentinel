@@ -2,6 +2,7 @@ import { Suspense } from 'react'
 import { ToolCard } from '@/components/public/ToolCard'
 import { FilterPanel } from '@/components/public/FilterPanel'
 import { SearchBar } from '@/components/public/SearchBar'
+import { PageHeader } from '@/components/public/PageHeader'
 import { getTools } from '@/lib/actions/tools'
 import { getCategories } from '@/lib/actions/categories'
 import type { Metadata } from 'next'
@@ -49,41 +50,36 @@ export default async function ToolsPage({ searchParams }: PageProps) {
   const hasFilters = params.q || params.category || params.type || params.status || params.selfHosted || params.docker || params.openSource
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-100 mb-2">Catalogue</h1>
-        <p className="text-slate-500">
-          {tools.length} outil{tools.length !== 1 ? 's' : ''} trouvé{tools.length !== 1 ? 's' : ''}
-          {hasFilters ? ' avec vos filtres' : ' dans la base'}
-        </p>
-      </div>
+    <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+      <PageHeader
+        title="Catalogue"
+        description="Recherchez, filtrez et comparez les outils référencés dans Awesome Sentinel."
+        meta={`${tools.length} outil${tools.length !== 1 ? 's' : ''} trouvé${tools.length !== 1 ? 's' : ''}${hasFilters ? ' avec vos filtres' : ' dans la base'}`}
+      />
 
-      {/* Search */}
-      <div className="mb-6">
+      <div className="mb-8">
         <Suspense>
           <SearchBar defaultValue={params.q ?? ''} />
         </Suspense>
       </div>
 
-      {/* Content */}
-      <div className="flex gap-6 flex-col lg:flex-row">
+      <div className="flex flex-col gap-7 lg:flex-row">
         <Suspense>
           <FilterPanel categories={categories} />
         </Suspense>
 
         <div className="flex-1 min-w-0">
           {tools.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
               {tools.map((tool) => (
                 <ToolCard key={tool.id} tool={tool} />
               ))}
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center py-24 text-center">
-              <div className="text-5xl mb-4">🔍</div>
-              <h3 className="text-xl font-semibold text-slate-300 mb-2">Aucun outil trouvé</h3>
-              <p className="text-slate-500 text-sm">Essayez de modifier vos filtres ou votre recherche.</p>
+            <div className="md-card flex flex-col items-center justify-center py-24 text-center">
+              <div className="mb-4 text-5xl">🔍</div>
+              <h3 className="mb-2 text-xl font-bold text-[var(--md-on-background)]">Aucun outil trouvé</h3>
+              <p className="text-sm text-[var(--md-on-surface-variant)]">Essayez de modifier vos filtres ou votre recherche.</p>
             </div>
           )}
         </div>

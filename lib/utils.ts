@@ -76,3 +76,24 @@ export const TOOL_STATUS_COLORS: Record<string, string> = {
   abandoned: 'bg-red-500/20 text-red-300 border-red-500/30',
   watching: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
 }
+
+export const PUBLIC_TOOL_TYPE_COLORS: Record<string, string> = {
+  self_hosted: 'bg-[#E8DEF8] text-[#1D192B] border-transparent',
+  saas: 'bg-[#FFD8E4] text-[#31111D] border-transparent',
+  cli: 'bg-[#D8E2FF] text-[#001A43] border-transparent',
+  desktop: 'bg-[#F9DEDC] text-[#410E0B] border-transparent',
+  mobile: 'bg-[#EADDFF] text-[#21005D] border-transparent',
+  api: 'bg-[#CCE8E4] text-[#07201E] border-transparent',
+  library: 'bg-[#F2E5A7] text-[#211B00] border-transparent',
+  browser_extension: 'bg-[#E8DEF8] text-[#1D192B] border-transparent',
+  devtool: 'bg-[#D5E8CF] text-[#10200D] border-transparent',
+  other: 'bg-[#E6E1E5] text-[#1D1B20] border-transparent',
+}
+
+export const PUBLIC_TOOL_STATUS_COLORS: Record<string, string> = {
+  to_test: 'bg-[#E6E1E5] text-[#1D1B20] border-transparent',
+  tested: 'bg-[#D8E2FF] text-[#001A43] border-transparent',
+  recommended: 'bg-[#D5E8CF] text-[#10200D] border-transparent',
+  abandoned: 'bg-[#F9DEDC] text-[#410E0B] border-transparent',
+  watching: 'bg-[#F2E5A7] text-[#211B00] border-transparent',
+}

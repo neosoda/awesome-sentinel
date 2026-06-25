@@ -26,10 +26,10 @@ export function SearchBar({ defaultValue = '' }: { defaultValue?: string }) {
   )
 
   return (
-    <div className="relative w-full max-w-xl">
-      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+    <div className="relative w-full max-w-2xl">
+      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
         <svg
-          className={`w-4 h-4 ${isPending ? 'text-indigo-400 animate-pulse' : 'text-slate-500'}`}
+          className={`h-5 w-5 ${isPending ? 'animate-pulse text-[var(--md-primary)]' : 'text-[var(--md-on-surface-variant)]'}`}
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -44,7 +44,7 @@ export function SearchBar({ defaultValue = '' }: { defaultValue?: string }) {
         defaultValue={defaultValue}
         onChange={(e) => handleSearch(e.target.value)}
         placeholder="Rechercher un outil..."
-        className="w-full bg-slate-800/60 border border-slate-700/50 rounded-xl pl-11 pr-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all"
+        className="md-filled-field pl-12 pr-4 text-sm placeholder:text-[var(--md-on-surface-variant)]/70"
       />
     </div>
   )
