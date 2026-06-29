@@ -57,20 +57,20 @@ export default async function ToolsPage({ searchParams }: PageProps) {
         meta={`${tools.length} outil${tools.length !== 1 ? 's' : ''} trouvé${tools.length !== 1 ? 's' : ''}${hasFilters ? ' avec vos filtres' : ' dans la base'}`}
       />
 
-      <div className="mb-8">
+      <div className="mb-6 sm:mb-8">
         <Suspense>
           <SearchBar defaultValue={params.q ?? ''} />
         </Suspense>
       </div>
 
-      <div className="flex flex-col gap-7 lg:flex-row">
+      <div className="grid gap-6 xl:grid-cols-[19rem_minmax(0,1fr)] xl:items-start">
         <Suspense>
           <FilterPanel categories={categories} />
         </Suspense>
 
         <div className="flex-1 min-w-0">
           {tools.length > 0 ? (
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,18rem),1fr))] gap-4 sm:gap-5">
               {tools.map((tool) => (
                 <ToolCard key={tool.id} tool={tool} />
               ))}

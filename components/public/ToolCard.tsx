@@ -21,9 +21,9 @@ interface ToolCardProps {
 export function ToolCard({ tool }: ToolCardProps) {
   return (
     <Link href={`/tools/${tool.slug}`} className="md-focus group block h-full rounded-[24px]">
-      <article className="md-card md-interactive-card flex h-full flex-col p-5 sm:p-6">
-        <div className="mb-5 flex items-start gap-4">
-          <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-[var(--md-surface-container-high)] shadow-sm">
+      <article className="md-card md-interactive-card flex h-full min-h-[17rem] flex-col p-4 sm:p-5">
+        <div className="mb-4 flex items-start gap-3 sm:gap-4">
+          <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-[var(--md-surface-container-high)] shadow-sm sm:h-14 sm:w-14">
             {tool.imageUrl ? (
               <Image
                 src={tool.imageUrl}
@@ -34,17 +34,17 @@ export function ToolCard({ tool }: ToolCardProps) {
                 unoptimized
               />
             ) : (
-              <span className="text-2xl font-bold text-[var(--md-primary)]">
+              <span className="text-xl font-bold text-[var(--md-primary)] sm:text-2xl">
                 {tool.title.charAt(0)}
               </span>
             )}
           </div>
           <div className="min-w-0 flex-1">
-            <h3 className="truncate text-lg font-bold text-[var(--md-on-background)] transition-colors group-hover:text-[var(--md-primary)]">
+            <h3 className="line-clamp-2 text-base font-bold leading-6 text-[var(--md-on-background)] transition-colors group-hover:text-[var(--md-primary)] sm:text-lg">
               {tool.title}
             </h3>
             {tool.category && (
-              <span className="text-xs font-medium text-[var(--md-primary)]">{tool.category.name}</span>
+              <span className="mt-1 block truncate text-xs font-medium text-[var(--md-primary)]">{tool.category.name}</span>
             )}
           </div>
           {tool.personalScore !== null && tool.personalScore !== undefined && (
@@ -55,11 +55,11 @@ export function ToolCard({ tool }: ToolCardProps) {
           )}
         </div>
 
-        <p className="line-clamp-2 mb-5 flex-1 text-sm leading-6 text-[var(--md-on-surface-variant)]">
+        <p className="line-clamp-3 mb-4 flex-1 text-sm leading-6 text-[var(--md-on-surface-variant)]">
           {tool.shortDescription}
         </p>
 
-        <div className="mb-5 flex flex-wrap gap-2">
+        <div className="mb-4 flex flex-wrap gap-2">
           <span className={cn('md-chip border', PUBLIC_TOOL_TYPE_COLORS[tool.type])}>
             {TOOL_TYPE_LABELS[tool.type]}
           </span>
@@ -68,7 +68,7 @@ export function ToolCard({ tool }: ToolCardProps) {
           </span>
         </div>
 
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-[var(--md-outline-variant)] pt-4">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-[var(--md-outline-variant)] pt-4">
           {tool.isSelfHosted && (
             <span className="flex items-center gap-1.5 text-xs text-[var(--md-on-surface-variant)]">
               <ServerIcon className="h-3 w-3" /> Self-Hosted
