@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { PrismaClient, ToolStatus, ToolType } from '@prisma/client'
 
@@ -10,10 +10,22 @@ type ImportedFavorite = {
   url: string
   isGithub: boolean
   shortDescription: string
+  longDescription?: string | null
   category: string
   categorySlug: string
   tags: string[]
   addedAt: string | null
+  websiteUrl?: string | null
+  githubUrl?: string | null
+  docsUrl?: string | null
+  demoUrl?: string | null
+  type?: ToolType
+  license?: string | null
+  pricing?: string | null
+  isSelfHosted?: boolean
+  hasDocker?: boolean
+  isOpenSource?: boolean
+  enrichmentStatus?: string
 }
 
 type FavoritesData = {
@@ -21,6 +33,36 @@ type FavoritesData = {
   duplicateCount: number
   rejectedCount?: number
   favorites: ImportedFavorite[]
+  categoryMetadata?: Record<string, { name: string; icon: string; description: string }>
+}
+
+type EnrichedCatalog = {
+  sourceCount: number
+  duplicateCountFromSource?: number
+  taxonomy: { name: string; slug: string; icon?: string; description?: string }[]
+  tools: Array<{
+    sourceIndex: number
+    sourceHash: string
+    title: string
+    slug: string
+    originalUrl: string
+    websiteUrl: string | null
+    githubUrl: string | null
+    docsUrl: string | null
+    demoUrl: string | null
+    shortDescription: string
+    longDescription: string | null
+    categorySlug: string
+    type: ToolType
+    license: string | null
+    pricing: string | null
+    isSelfHosted: boolean
+    hasDocker: boolean
+    isOpenSource: boolean
+    tags: string[]
+    addedAt: string | null
+    enrichmentStatus: string
+  }>
 }
 
 const categoryMetadata: Record<string, { icon: string; description: string }> = {
@@ -68,6 +110,59 @@ const categoryMetadata: Record<string, { icon: string; description: string }> = 
     icon: '🔖',
     description: 'Ressources conservées pour une vérification ou un classement manuel.',
   },
+}
+
+function readCatalogData(): FavoritesData {
+  const enrichedPath = join(__dirname, 'data', 'catalog.enriched.json')
+  if (existsSync(enrichedPath)) {
+    const catalog = JSON.parse(readFileSync(enrichedPath, 'utf8')) as EnrichedCatalog
+    const enrichedCategoryMetadata = Object.fromEntries(
+      catalog.taxonomy.map((category) => [
+        category.slug,
+        {
+          name: category.name,
+          icon: category.icon ?? '•',
+          description: category.description ?? `Outils classés dans ${category.name}.`,
+        },
+      ]),
+    )
+
+    return {
+      sourceCount: catalog.sourceCount,
+      duplicateCount: catalog.duplicateCountFromSource ?? 0,
+      categoryMetadata: enrichedCategoryMetadata,
+      favorites: catalog.tools
+        .filter((tool) => tool.enrichmentStatus !== 'duplicate')
+        .map((tool) => ({
+          sourceIndex: tool.sourceIndex,
+          sourceHash: tool.sourceHash,
+          title: tool.title,
+          slug: tool.slug,
+          url: tool.originalUrl,
+          isGithub: Boolean(tool.githubUrl),
+          websiteUrl: tool.websiteUrl,
+          githubUrl: tool.githubUrl,
+          docsUrl: tool.docsUrl,
+          demoUrl: tool.demoUrl,
+          shortDescription: tool.shortDescription,
+          longDescription: tool.longDescription,
+          category: enrichedCategoryMetadata[tool.categorySlug]?.name ?? tool.categorySlug,
+          categorySlug: tool.categorySlug,
+          tags: tool.tags,
+          addedAt: tool.addedAt,
+          type: tool.type,
+          license: tool.license,
+          pricing: tool.pricing,
+          isSelfHosted: tool.isSelfHosted,
+          hasDocker: tool.hasDocker,
+          isOpenSource: tool.isOpenSource,
+          enrichmentStatus: tool.enrichmentStatus,
+        })),
+    }
+  }
+
+  const dataPath = join(__dirname, 'data', 'favorites.json')
+  return JSON.parse(readFileSync(dataPath, 'utf8')) as FavoritesData
 }
 
 const trackingParameter =
@@ -134,8 +229,7 @@ function uniqueSlug(baseSlug: string, sourceHash: string, usedSlugs: Set<string>
 }
 
 export async function importFavorites(prisma: PrismaClient) {
-  const dataPath = join(__dirname, 'data', 'favorites.json')
-  const data = JSON.parse(readFileSync(dataPath, 'utf8')) as FavoritesData
+  const data = readCatalogData()
 
   const categoryEntries = [
     ...new Map(
@@ -148,7 +242,7 @@ export async function importFavorites(prisma: PrismaClient) {
 
   const categories = await Promise.all(
     categoryEntries.map((category) => {
-      const metadata = categoryMetadata[category.slug] ?? {
+      const metadata = data.categoryMetadata?.[category.slug] ?? categoryMetadata[category.slug] ?? {
         icon: '🔖',
         description: `Favoris importés depuis « ${category.name} ».`,
       }
@@ -232,11 +326,20 @@ export async function importFavorites(prisma: PrismaClient) {
             where: { id: existingTool.id },
             data: {
               title: favorite.title,
-              websiteUrl: favorite.isGithub ? null : favorite.url,
-              githubUrl: favorite.isGithub ? favorite.url : null,
+              websiteUrl: favorite.websiteUrl ?? (favorite.isGithub ? null : favorite.url),
+              githubUrl: favorite.githubUrl ?? (favorite.isGithub ? favorite.url : null),
+              docsUrl: favorite.docsUrl ?? null,
+              demoUrl: favorite.demoUrl ?? null,
               shortDescription: favorite.shortDescription,
+              longDescription: favorite.longDescription ?? null,
               categoryId: categoryIds.get(favorite.categorySlug) ?? null,
+              type: favorite.type ?? ToolType.other,
+              license: favorite.license ?? null,
+              pricing: favorite.pricing ?? null,
               isFavorite: true,
+              isSelfHosted: favorite.isSelfHosted ?? false,
+              hasDocker: favorite.hasDocker ?? false,
+              isOpenSource: favorite.isOpenSource ?? false,
             },
           }),
         )
@@ -249,13 +352,21 @@ export async function importFavorites(prisma: PrismaClient) {
     creates.push({
       title: favorite.title,
       slug,
-      websiteUrl: favorite.isGithub ? null : favorite.url,
-      githubUrl: favorite.isGithub ? favorite.url : null,
+      websiteUrl: favorite.websiteUrl ?? (favorite.isGithub ? null : favorite.url),
+      githubUrl: favorite.githubUrl ?? (favorite.isGithub ? favorite.url : null),
+      docsUrl: favorite.docsUrl ?? null,
+      demoUrl: favorite.demoUrl ?? null,
       shortDescription: favorite.shortDescription,
+      longDescription: favorite.longDescription ?? null,
       categoryId: categoryIds.get(favorite.categorySlug) ?? null,
-      type: ToolType.other,
+      type: favorite.type ?? ToolType.other,
+      license: favorite.license ?? null,
+      pricing: favorite.pricing ?? null,
       status: ToolStatus.to_test,
       isFavorite: true,
+      isSelfHosted: favorite.isSelfHosted ?? false,
+      hasDocker: favorite.hasDocker ?? false,
+      isOpenSource: favorite.isOpenSource ?? false,
       createdAt: favorite.addedAt ? new Date(favorite.addedAt) : new Date(),
     })
   }
